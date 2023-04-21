@@ -26,6 +26,13 @@ public class BookController {
         return data.get(id);
     }
 
+    @GetMapping("/find-book/{id}")
+    public Book findBookID(@PathVariable Integer id){
+
+        return data.get(id);
+    }
+
+
     @PutMapping("/update-book")
     public String updateBook(@RequestParam int id,@RequestParam String title,
                              @RequestParam String author,@RequestParam int pages)
