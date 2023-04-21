@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,6 +32,10 @@ public class BookController {
         return data.get(id);
     }
 
+    @GetMapping("/all-books")
+    public List<Book> findBooks(){
+        return data.values().stream().toList();
+    }
 
     @PutMapping("/update-book")
     public String updateBook(@RequestParam int id,@RequestParam String title,
