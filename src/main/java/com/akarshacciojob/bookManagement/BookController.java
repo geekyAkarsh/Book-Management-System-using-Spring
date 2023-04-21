@@ -1,31 +1,44 @@
 package com.akarshacciojob.bookManagement;
 
 import org.springframework.boot.autoconfigure.mail.MailProperties;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 public class BookController {
 
-    Map<Integer,Book> data = new HashMap<>();
-
+    BookService bookService = new BookService();
     @PostMapping("/add-book")
-    public String addBook(@RequestBody Book book){
+    public ResponseEntity addBook(@RequestBody Book book){
 
-        data.put(book.getBookId(),book);
-        return "book with id - " + book.getBookId() + " added successfully";
+        try{
+            Boolean added = bookService.addBook(book);
+            return new ResponseEntity("Book added Successfully to the Library!!!", HttpStatus.CREATED);
+        }catch (BookAlreadyExistsException ex){
+            return new ResponseEntity("Book already Exists in the Library!!",HttpStatus.valueOf(400));
+        } catch (Exception ex){
+            return new ResponseEntity("Something went wrong",HttpStatus.valueOf(500));
+        }
     }
 
     @GetMapping("/find-book")
-    public Book findBook(@RequestParam("bookId") Integer id){
+    public ResponseEntity findBook(@RequestParam("bookId") Integer id){
 
-        return data.get(id);
+        try{
+            Optional<Book> book = bookService.getBook(id);
+            return new ResponseEntity(book.get(),HttpStatus.OK);
+        }catch (BookNotFoundException ex){
+            return new ResponseEntity("Book not found in Library",HttpStatus.NOT_FOUND);
+        } catch (Exception ex){
+            return new ResponseEntity("Something went wrong",HttpStatus.valueOf(500));
+        }
     }
 
+    /*
     @GetMapping("/find-book/{id}")
     public Book findBookID(@PathVariable Integer id){
 
@@ -39,7 +52,7 @@ public class BookController {
 
     @PutMapping("/update-book")
     public String updateBook(@RequestParam int id,@RequestParam String title,
-                             @RequestParam String author,@RequestParam int pages)
+                             @RequestParam String author,@RequestParam Integer pages)
     {
         Book book = data.get(id);
         book.setTitle(title);
@@ -49,33 +62,33 @@ public class BookController {
 
         return "book updated !!!";
     }
+    */
 
     @PutMapping("/update-book/{id}")
-    public String updateBookOptional(@PathVariable Integer id,@RequestParam(required = false) String title,
+    public ResponseEntity updateBookOptional(@PathVariable Integer id,@RequestParam(required = false) String title,
                                      @RequestParam(required = false) String author,
-                                     @RequestParam(required = false) int pages)
+                                     @RequestParam(required = false) Integer pages)
     {
-        Book book = data.get(id);
-        if(Objects.nonNull(title)){
-            book.setTitle(title);
+        try{
+            Optional<Book> book = bookService.updateBook(id,title,author,pages);
+            return new ResponseEntity(book.get(),HttpStatus.OK);
+        }catch (BookNotFoundException ex){
+            return new ResponseEntity("Book does not exist in Library!!!",HttpStatus.BAD_REQUEST);
+        } catch (Exception ex){
+            return new ResponseEntity("Something went wrong",HttpStatus.valueOf(500));
         }
-
-        if(Objects.nonNull(author)){
-            book.setAuthor(author);
-        }
-
-        if(Objects.nonNull(pages)){
-            book.setPages(pages);
-        }
-        data.put(id,book);
-
-        return "book information updated successfully !!!";
     }
 
     @DeleteMapping("/remove-book/{id}")
-    public String deleteBook(@PathVariable int id){
+    public ResponseEntity deleteBook(@PathVariable int id){
 
-        data.remove(id);
-        return "Book removed from database successfully";
+        try{
+            Boolean removed = bookService.deleteBook(id);
+            return new ResponseEntity("Book deleted from Library",HttpStatus.OK);
+        } catch (BookNotFoundException ex){
+            return new ResponseEntity("Book does not exist in Library!!!",HttpStatus.BAD_REQUEST);
+        } catch (Exception ex){
+            return new ResponseEntity("Something went wrong",HttpStatus.valueOf(500));
+        }
     }
 }
