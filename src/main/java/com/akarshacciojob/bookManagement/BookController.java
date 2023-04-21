@@ -5,13 +5,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 public class BookController {
 
     Map<Integer,Book> data = new HashMap<>();
-//    Book book1 = new Book(1,"a","b",20);
-//    data.put(book1.id,book1);
 
     @PostMapping("/add-book")
     public String addBook(@RequestBody Book book){
@@ -44,6 +43,28 @@ public class BookController {
         data.put(id,book);
 
         return "book updated !!!";
+    }
+
+    @PutMapping("/update-book/{id}")
+    public String updateBookOptional(@PathVariable Integer id,@RequestParam(required = false) String title,
+                                     @RequestParam(required = false) String author,
+                                     @RequestParam(required = false) int pages)
+    {
+        Book book = data.get(id);
+        if(Objects.nonNull(title)){
+            book.setTitle(title);
+        }
+
+        if(Objects.nonNull(author)){
+            book.setAuthor(author);
+        }
+
+        if(Objects.nonNull(pages)){
+            book.setPages(pages);
+        }
+        data.put(id,book);
+
+        return "book information updated successfully !!!";
     }
 
     @DeleteMapping("/remove-book/{id}")

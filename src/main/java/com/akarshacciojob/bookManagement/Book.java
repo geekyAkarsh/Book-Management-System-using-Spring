@@ -3,6 +3,7 @@ package com.akarshacciojob.bookManagement;
 import lombok.Getter;
 import lombok.Setter;
 
+// lombok dependency
 @Getter// automatically creates getters functions for all data types
 @Setter// automatically creates setters functions for all data types
 public class Book {
